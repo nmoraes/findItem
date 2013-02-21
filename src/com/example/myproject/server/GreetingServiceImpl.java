@@ -30,6 +30,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		String title=null;
 		String currency=null;
 		String pic=null;
+		String permalink=null;
 		
 		URL url;
 		try {
@@ -50,7 +51,9 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 			sold_quantity = json.getString( "sold_quantity" );
 			title=json.getString( "title");
 			currency=json.getString("currency_id");		
-			pictures = json.getString("thumbnail");			
+			pictures = json.getString("thumbnail");	
+			permalink = json.getString("permalink");
+
 			System.out.println("id pic: " + pictures);
 			
 			pic = pictures.replace("_v_I_f", "_v_T_f");
@@ -63,7 +66,12 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 			e.printStackTrace();
 		}
 
+		
+		
+		
 		return "Item id :" + input + "!<br>"+title+"<br>Precio: " + price + " "+currency/*serverInfo*/
-				+ ".<br><br>Cantidad: " + sold_quantity +"<br>"+ "<img src="+pic+">";
+				+ ".<br><br>Cantidad: " + sold_quantity +"<br>"+ "<p> <input type= \"image\" src= " + pic + " "+ " +  align=\"left\" onclick=\"location.href='"+ permalink + "' \"/> </p>";
+		
+		//"<img src="+pic+">";
 	}
 }
