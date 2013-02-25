@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.TextArea;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -33,7 +34,11 @@ public class DevelopersMercadoLibre implements EntryPoint {
 	 */
 	private final GreetingServiceAsync greetingService = GWT
 			.create(GreetingService.class);
-
+	
+	
+	private HTML resultado = new HTML("",true);
+	private TextArea textArea;
+	
 	/**
 	 * This is the entry point method.
 	 */
@@ -48,7 +53,8 @@ public class DevelopersMercadoLibre implements EntryPoint {
 
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
-		RootPanel.get("nameFieldContainer").add(nameField);
+		RootPanel rootPanel = RootPanel.get("nameFieldContainer");
+		rootPanel.add(nameField);
 		RootPanel.get("sendButtonContainer").add(sendButton);
 		//RootPanel.get("errorLabelContainer").add(errorLabel);
 
@@ -74,6 +80,17 @@ public class DevelopersMercadoLibre implements EntryPoint {
 		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
 		dialogVPanel.add(closeButton);
 		dialogBox.setWidget(dialogVPanel);
+		
+		
+		RootPanel.get("resul").add(resultado);
+		
+		textArea = new TextArea();
+		textArea.setVisible(false);
+		RootPanel.get("textArea").add(textArea);
+		textArea.setSize("720px", "107px");
+
+		//rootPanel.add(textArea, 39, 170);
+		
 
 		// Add a handler to close the DialogBox
 		closeButton.addClickHandler(new ClickHandler() {
@@ -83,6 +100,7 @@ public class DevelopersMercadoLibre implements EntryPoint {
 				sendButton.setFocus(true);
 			}
 		});
+			
 
 		// Create a handler for the sendButton and nameField
 		class MyHandler implements ClickHandler, KeyUpHandler {
@@ -91,6 +109,7 @@ public class DevelopersMercadoLibre implements EntryPoint {
 			 */
 			public void onClick(ClickEvent event) {
 				sendNameToServer();
+				generarDestacados();
 			}
 
 			/**
@@ -99,6 +118,7 @@ public class DevelopersMercadoLibre implements EntryPoint {
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					sendNameToServer();
+					generarDestacados();
 				}
 			}
 
@@ -118,26 +138,57 @@ public class DevelopersMercadoLibre implements EntryPoint {
 				greetingService.findItem(textToServer,
 						new AsyncCallback<String>() {
 							public void onFailure(Throwable caught) {
-								// Show the RPC error message to the user
-								dialogBox
-										.setText("API say's ...... Error");
-								serverResponseLabel
-										.addStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(SERVER_ERROR);
-								dialogBox.center();
-								closeButton.setFocus(true);
+								
+								
+								resultado.setHTML(caught.toString());
+							
 							}
 
-							public void onSuccess(String result) {
-								dialogBox.setText("API say's ......");
-								serverResponseLabel
-										.removeStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(result);
-								dialogBox.center();
-								closeButton.setFocus(true);
+							public void onSuccess(String result) {			
+								
+								resultado.setHTML(result);
+								//sendButton.setEnabled(true);
+								
+							
 							}
 						});
 			}
+			
+					
+			private void generarDestacados() {
+				// First, we validate the input.
+				errorLabel.setText("");
+				String textToServer = nameField.getText();
+				
+
+				// Then, we send the input to the server.
+				sendButton.setEnabled(false);
+				textToServerLabel.setText(textToServer);
+				serverResponseLabel.setText("");
+				greetingService.generarDestacados(textToServer,
+						new AsyncCallback<String>() {
+							public void onFailure(Throwable caught) {
+								
+								sendButton.setEnabled(true);
+							}
+
+							public void onSuccess(String result) {			
+								
+								textArea.setText(result);
+								textArea.setVisible(true);
+							
+								sendButton.setEnabled(true);
+								
+							
+							}
+						});
+			}
+			
+			
+			
+			
+			
+			
 		}
 
 		// Add a handler to send the name to the server
